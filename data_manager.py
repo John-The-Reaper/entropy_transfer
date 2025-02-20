@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from time import sleep
 import numpy as np
 import pandas as pd
+import math
 import pyarrow.feather as feather
 from tqdm import tqdm
 
@@ -13,7 +14,7 @@ from tqdm import tqdm
 # CLASSE DE GESTION DES DONNÉES
 ###############################################################################
 
-INTERVALS_PER_DAY = 24 // 4      # 6 intervalles par jour
+INTERVALS_PER_DAY = 24   # 6 intervalles par jour
 DATA_DIR = "data"              # Répertoire de sauvegarde des Feather
 
 
@@ -33,7 +34,7 @@ class DataManager:
         since = start_ts
         limit = 1000  # limite de chandeliers par appel
         pbar = tqdm(desc=f"Fetching {symbol}", unit="candle")
-        
+
         while True:
             try:
                 candles = self.exchange.fetch_ohlcv(symbol, timeframe=timeframe, since=since, limit=limit)
@@ -71,16 +72,16 @@ class DataManager:
         start_dt = now_dt - timedelta(weeks=weeks)
         start_ts = int(start_dt.timestamp() * 1000)
         end_ts = int(now_dt.timestamp() * 1000)
-        
+
         print(f"Récupération de {symbol} depuis {start_dt} jusqu'à {now_dt}...")
         candles = self.fetch_historical_data(symbol, timeframe, start_ts, end_ts)
-        
+
         # Initialisation de la structure : liste de listes (weeks x 7 jours)
         data_structure = [
             [[None for _ in range(INTERVALS_PER_DAY)] for _ in range(7)]
             for _ in range(weeks)
         ]
-        
+
         for candle in candles:
             ts, open_price, high, low, close_price, volume = candle
             candle_dt = datetime.fromtimestamp(ts / 1000)
@@ -97,9 +98,9 @@ class DataManager:
             # On classe la donnée dans la semaine correspondante
             week_index = (weeks * 7 - 1 - delta_days) // 7
             day_index = candle_dt.weekday()  # 0 = lundi, 6 = dimanche
-            hour_index = candle_dt.hour // 4
+            hour_index = candle_dt.hour
             data_structure[week_index][day_index][hour_index] = pct_change
-            
+
             rows = []
             for week_data in data_structure:
                 for day_data in week_data:
@@ -108,7 +109,50 @@ class DataManager:
         df = pd.DataFrame(rows)
         return df
 
+    @staticmethod
+    def convert_data(symbol, file=DATA_DIR):
+        """
+        Rendre un fichier exploitable pour un calcul de transfert d'entropie, on enlève les valeurs NaN
+        """
+      
+        feather = DataManager.read_from_feather(symbol, file)
+        tableau = feather.values.tolist() 
+        inital_size = len(tableau)
+
+        for e in range(inital_size):
+            
+            for i in range(len(tableau[0])-1,-1,-1):
+                
+                if isinstance(tableau[0][i], float) and math.isnan(tableau[0][i]):
+                    del tableau[0][i]
+
+            tableau.extend(tableau.pop(0))
+
+        return tableau
+
     
+    @staticmethod
+    def absolute(file1, file2):
+        """
+        Egalisation des échantillons et modifications des valeurs en ajoutant la plus petite valeur (forcément négative)
+        """
+        
+        list_1 = DataManager.convert_data(file1)
+        list_2 = DataManager.convert_data(file2)
+
+        minimum_len = min(len(list_1), len(list_2))
+        print(f"Echantillons de taille : {minimum_len}")
+        list_1 = list_1[:minimum_len]
+        list_2 = list_2[:minimum_len]
+        minimum = min(min(list_1), min(list_2))
+        
+        for i in range(minimum_len):
+            list_1[i] = list_1[i] - minimum
+            list_2[i] = list_2[i] - minimum
+        return list_1, list_2
+
+
+
     def save_to_feather(self, df, symbol, folder=DATA_DIR):
         """
         Sauvegarde la DataFrame au format Feather.
@@ -119,7 +163,8 @@ class DataManager:
         feather.write_feather(df, filename)
         print(f"Les données de {symbol} ont été sauvegardées dans {filename}")
 
-    def read_from_feather(self, symbol, folder=DATA_DIR):
+    @staticmethod
+    def read_from_feather(symbol, folder=DATA_DIR):
         """
         Lit les données depuis le fichier Feather et retourne une DataFrame.
         """
@@ -128,4 +173,5 @@ class DataManager:
             raise FileNotFoundError(f"{filename} n'existe pas.")
         df = feather.read_feather(filename)
         return df
+
     
