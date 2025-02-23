@@ -17,12 +17,6 @@ from tqdm import tqdm
 INTERVALS_PER_DAY = 24   # 24 intervalles par jour (timeframe de 1h)
 DATA_DIR = "data"        # Répertoire de sauvegarde des Feather
 
-
-"""
-| BTC | SP500 | ETH | TE_BTC_SP500 | TE_BTC_ETH | TE_ETH_SP500
-
-"""
-
 class DataManager:
     def __init__(self, exchange_name='binance'):
         # Crée une instance ccxt avec gestion automatique du rate limit
