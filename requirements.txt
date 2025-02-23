@@ -1,2 +1,7 @@
 ccxt
 tqdm
+pyarrow
+pandas
+datetime
+time
+scipy.stats
