@@ -14,11 +14,14 @@ from tqdm import tqdm
 # CLASSE DE GESTION DES DONNÉES
 ###############################################################################
 
-INTERVALS_PER_DAY = 24   # 6 intervalles par jour
-DATA_DIR = "data"              # Répertoire de sauvegarde des Feather
+INTERVALS_PER_DAY = 24   # 24 intervalles par jour (timeframe de 1h)
+DATA_DIR = "data"        # Répertoire de sauvegarde des Feather
 
 
+"""
+| BTC | SP500 | ETH | TE_BTC_SP500 | TE_BTC_ETH | TE_ETH_SP500
 
+"""
 
 class DataManager:
     def __init__(self, exchange_name='binance'):
@@ -65,7 +68,7 @@ class DataManager:
         """
         Récupère les données sur une période (en semaines) et les organise dans
         une DataFrame avec les colonnes :
-          - Week, Day, puis les valeurs de chaque intervalle (H0, H4, …, H20)
+          - Week, Day, puis les valeurs de chaque intervalle en fonction de la timeframe
         Le changement est calculé par : (close - open) / open * 100.
         """
         now_dt = datetime.now()
@@ -110,47 +113,48 @@ class DataManager:
         return df
 
     @staticmethod
-    def convert_data(symbol, file=DATA_DIR):
+    def data_modify(file1, file2, entropy=False, folder=DATA_DIR):
         """
-        Rendre un fichier exploitable pour un calcul de transfert d'entropie, on enlève les valeurs NaN
-        """
-      
-        feather = DataManager.read_from_feather(symbol, file)
-        tableau = feather.values.tolist() 
-        inital_size = len(tableau)
-
-        for e in range(inital_size):
-            
-            for i in range(len(tableau[0])-1,-1,-1):
-                
-                if isinstance(tableau[0][i], float) and math.isnan(tableau[0][i]):
-                    del tableau[0][i]
-
-            tableau.extend(tableau.pop(0))
-
-        return tableau
-
-    
-    @staticmethod
-    def absolute(file1, file2):
-        """
-        Egalisation des échantillons et modifications des valeurs en ajoutant la plus petite valeur (forcément négative)
+        Rendre les données exploitables pour les calculs de corrélation 
+        et de TE
         """
         
-        list_1 = DataManager.convert_data(file1)
-        list_2 = DataManager.convert_data(file2)
-
+        def clean_list(lst, folder):
+            """
+            Supprimer les valeurs NaN et les matrices de manière à simplifier les calculs
+            """
+            
+            feather = DataManager.read_from_feather(lst, folder)
+            tableau = feather.values.tolist() 
+            initial_size = len(tableau)
+            
+            for _ in range(initial_size):
+                # Supprimer les NaN si l'option est activée
+                for i in range(len(tableau[0]) - 1, -1, -1):
+                    if isinstance(tableau[0][i], float) and math.isnan(tableau[0][i]):
+                        del tableau[0][i]
+                
+                # Déplacer la première sous-liste à la fin de manière à supprimer la matrice
+                tableau.extend(tableau.pop(0))
+            return tableau
+        
+        
+        list_1 = clean_list(file1, folder)
+        list_2 = clean_list(file2, folder)
+        
         minimum_len = min(len(list_1), len(list_2))
         print(f"Echantillons de taille : {minimum_len}")
+        # On ajuste les échantillons de manière à égaliser leur taille
         list_1 = list_1[:minimum_len]
         list_2 = list_2[:minimum_len]
-        minimum = min(min(list_1), min(list_2))
         
-        for i in range(minimum_len):
-            list_1[i] = list_1[i] - minimum
-            list_2[i] = list_2[i] - minimum
+        if entropy:
+            minimum = min(min(list_1), min(list_2))
+            for i in range(minimum_len):
+                list_1[i] = list_1[i] - minimum
+                list_2[i] = list_2[i] - minimum
+                
         return list_1, list_2
-
 
 
     def save_to_feather(self, df, symbol, folder=DATA_DIR):

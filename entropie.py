@@ -1,16 +1,20 @@
 import numpy as np
-from pyinform.transferentropy import transfer_entropy
 import matplotlib.pyplot as plt
+
 from stats_test import StatisticalAnalysis
 
+###############################################################################
+# Test TE avec affichage graphique
+###############################################################################
+
+LAG_RANGE = 300
 
 def main():
-    # Tester plusieurs décalages
-    te_values = StatisticalAnalysis.transfer_entropy("DYMUSDT", "BTCUSDT", 300)
-    lags_range = 200
 
-    min_val = min(te_values, key=lambda item: item[1])  # Trouve la liste avec la plus petite valeur en index 1
-    print("Valeur la plus intéressante : ", min_val)
+    te_values = StatisticalAnalysis.transfer_entropy("BTCUSDT", "ETHUSDT", LAG_RANGE)
+
+    max_val = max(te_values, key=lambda item: item[1])  # Trouve la liste avec la plus grande valeur en index 1
+    print("Valeur la plus intéressante : ", max_val)
 
     lags, values = zip(*te_values)
 

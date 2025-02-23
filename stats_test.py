@@ -1,10 +1,10 @@
 import pandas as pd
-from  data_manager import DataManager
 import pyarrow.feather as feather
 from scipy.stats import pearsonr, spearmanr, kendalltau, ttest_rel
 from tqdm import tqdm
 from pyinform.transferentropy import transfer_entropy
 
+from  data_manager import DataManager
 
 ###############################################################################
 # CLASSE POUR L'ANALYSE STATISTIQUE
@@ -12,26 +12,13 @@ from pyinform.transferentropy import transfer_entropy
 
 class StatisticalAnalysis:
     @staticmethod
-    def _flatten_df(df):
-        """
-        Aplati les colonnes de la DataFrame correspondant aux intervalles (commençant par 'H')
-        en une seule liste en ignorant les valeurs manquantes.
-        """
-        cols = [col for col in df.columns if col.startswith('H')]
-        flat = df[cols].values.flatten()
-        # Filtre des valeurs None/NaN
-        return [v for v in flat if pd.notnull(v)]
-    
-    @staticmethod
     def calculate_pearson(df1, df2):
         """
         Calcule la corrélation de Pearson entre les deux DataFrames.
         """
-        flat1 = StatisticalAnalysis._flatten_df(df1)
-        flat2 = StatisticalAnalysis._flatten_df(df2)
-        if len(flat1) != len(flat2) or len(flat1) < 2:
-            return None
-        corr, _ = pearsonr(flat1, flat2)
+        data = DataManager.data_modify(df1, df2)
+
+        corr, _ = pearsonr(data[0], data[1])
         return corr
 
     @staticmethod
@@ -39,11 +26,9 @@ class StatisticalAnalysis:
         """
         Calcule la corrélation de Spearman entre les deux DataFrames.
         """
-        flat1 = StatisticalAnalysis._flatten_df(df1)
-        flat2 = StatisticalAnalysis._flatten_df(df2)
-        if len(flat1) != len(flat2) or len(flat1) < 2:
-            return None
-        corr, _ = spearmanr(flat1, flat2)
+        data = DataManager.data_modify(df1, df2)
+        
+        corr, _ = spearmanr(data[0], data[1])
         return corr
 
     @staticmethod
@@ -51,11 +36,9 @@ class StatisticalAnalysis:
         """
         Calcule la corrélation de Kendall entre les deux DataFrames.
         """
-        flat1 = StatisticalAnalysis._flatten_df(df1)
-        flat2 = StatisticalAnalysis._flatten_df(df2)
-        if len(flat1) != len(flat2) or len(flat1) < 2:
-            return None
-        corr, _ = kendalltau(flat1, flat2)
+        data = DataManager.data_modify(df1, df2)
+
+        corr, _ = kendalltau(data[0], data[1])
         return corr
 
     @staticmethod
@@ -64,11 +47,9 @@ class StatisticalAnalysis:
         Effectue un test t apparié sur les données aplaties.
         Retourne la statistique t et la p-value.
         """
-        flat1 = StatisticalAnalysis._flatten_df(df1)
-        flat2 = StatisticalAnalysis._flatten_df(df2)
-        if len(flat1) != len(flat2) or len(flat1) < 2:
-            return None, None
-        t_stat, p_value = ttest_rel(flat1, flat2)
+        data = DataManager.data_modify(df1, df2)
+        
+        t_stat, p_value = ttest_rel(data[0], data[1])
         return t_stat, p_value
 
     @staticmethod
@@ -92,9 +73,9 @@ class StatisticalAnalysis:
         """
         Calcul d'un transfer d'entropie sur deux séries de données avec un "lag" en nombre de périodes
 
-        Closer to 1 = no entropy transfer
+        Résultat du TE proche de 1 = serie_source influence serie_cible
         """
-        data = DataManager.absolute(serie_source, serie_cible)
+        data = DataManager.data_modify(serie_source, serie_cible, True)
         te_values = []
 
 
