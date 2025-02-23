@@ -30,7 +30,7 @@ pip install -r requirements.txt
 from data_manager import DataManager
 
 manager = DataManager()
-data = manager.fetch_historical_data("BTC/USDT", "1d", start_ts, end_ts)
+data = manager.fetch_historical_data("BTC/USDT", "1h", start_ts, end_ts)
 ```
 
 ### Calcul de la corrélation
