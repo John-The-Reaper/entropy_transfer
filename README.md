@@ -57,8 +57,6 @@ Visualization.plot_correlation(correlation)
 Le projet utilise `logging` pour tracer les erreurs et avertissements. Les logs sont enregistrés dans `app.log`.
 
 ## Contributeurs
-👤 **Votre Nom** - Développeur principal
+👤 **John-The-Reaper** - Développeur principal
 
-## Licence
-Ce projet est sous licence MIT.
 
