@@ -45,10 +45,16 @@ correlation = StatisticalAnalysis.calculate_correlation(series1, series2)
 te_results = StatisticalAnalysis.transfer_entropy(series1, series2, lags_range=100)
 ```
 
-### Visualisation des résultats
+### Visualisation des résultats avec mathplotlib
 ```python
-from visualization import Visualization
-Visualization.plot_correlation(correlation)
+import matplotlib.pyplot as plt
+
+plt.plot(lags, values, marker='o', linestyle='-')
+plt.xlabel("Lag (en nombre de periodes)")
+plt.ylabel("Transfert d'entropie")
+plt.title("Évolution du TE en fonction du lag")
+plt.grid()
+plt.show()
 ```
 
 ## Contributeurs
