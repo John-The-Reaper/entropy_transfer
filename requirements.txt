@@ -5,3 +5,4 @@ pandas
 datetime
 time
 scipy.stats
+numpy
