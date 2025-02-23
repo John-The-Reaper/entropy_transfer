@@ -12,13 +12,11 @@ Ce projet permet d'analyser la corrélation et le transfert d'entropie entre dif
 ✅ **Récupération des données** via `ccxt` et stockage optimisé avec `feather`.
 ✅ **Calculs statistiques avancés** (corrélation, tests t, transfert d'entropie).
 ✅ **Optimisation des performances** grâce à `numpy`.
-✅ **Ajout de logs** pour un suivi efficace des erreurs et de l'exécution.
 
 ## Installation
 ### 1️⃣ Cloner le projet
 ```bash
-git clone https://github.com/votre-repo/crypto-correlation.git
-cd crypto-correlation
+git clone https://github.com/John-The-Reaper/entropy_transfer.git
 ```
 ### 2️⃣ Installer les dépendances
 Utilisez `pip` pour installer les bibliothèques nécessaires :
@@ -52,9 +50,6 @@ te_results = StatisticalAnalysis.transfer_entropy(series1, series2, lags_range=1
 from visualization import Visualization
 Visualization.plot_correlation(correlation)
 ```
-
-## Configuration des logs
-Le projet utilise `logging` pour tracer les erreurs et avertissements. Les logs sont enregistrés dans `app.log`.
 
 ## Contributeurs
 👤 **John-The-Reaper** - Développeur principal
