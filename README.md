@@ -53,5 +53,5 @@ import seaborn as sns
 
 ## Contributeurs
 👤 **John-The-Reaper** - Développeur principal
-
+👤 **Exocet**
 
