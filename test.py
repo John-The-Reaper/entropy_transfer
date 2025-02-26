@@ -6,7 +6,7 @@ import pandas as pd
 import pyarrow.feather as feather
 from tqdm import tqdm
 
-from data_manager import DataManager
+from data_manager import DataManagerCrypto
 from stats_test import StatisticalAnalysis
 
 
@@ -15,12 +15,12 @@ from stats_test import StatisticalAnalysis
 ###############################################################################
 
 TIMEFRAME = '1h'               # Intervalle pour les chandeliers
-WEEKS = 24                     # Nombre de semaines de données à récupérer
-SYMBOLS = ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'AVAX/USDT', 'ATOM/USDT', 'INJ/USDT', 'DYM/USDT']  # Format ccxt "BASE/QUOTE"
+WEEKS = 53                     # Nombre de semaines de données à récupérer
+SYMBOLS = ['BTC/USDT', 'ETH/USDT', 'DYM/USDT', 'AVAX/USDT', 'ATOM/USDT', 'INJ/USDT']  # Format ccxt "BASE/QUOTE"
 
 def main():
     # Exemple 1 : Récupération et sauvegarde des données pour deux symboles
-    dm = DataManager()
+    dm = DataManagerCrypto()
 
     for symbol in SYMBOLS:
         df = dm.get_data(symbol, weeks=WEEKS, timeframe=TIMEFRAME)
