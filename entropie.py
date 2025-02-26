@@ -27,7 +27,7 @@ def main():
     window_size = max(10, len(values) // 8)
 
     # Calcul de la moyenne mobile complète
-    moving_avg = StatisticalAnalysis.moving_average_complete(values, window_size)
+    moving_avg = StatisticalAnalysis.moving_average(values, window_size)
 
     # 🔹 Amélioration du design du graphique
     plt.figure(figsize=(12, 6))  # Taille du graphique
