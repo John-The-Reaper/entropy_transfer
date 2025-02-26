@@ -9,15 +9,14 @@ import pyarrow.feather as feather
 from tqdm import tqdm
 
 
-
 ###############################################################################
 # CLASSE DE GESTION DES DONNÉES
 ###############################################################################
 
-INTERVALS_PER_DAY = 24   # 24 intervalles par jour (timeframe de 1h)
+INTERVALS_PER_DAY = 24  # 24 intervalles par jour (timeframe de 1h)
 DATA_DIR = "data"        # Répertoire de sauvegarde des Feather
 
-class DataManager:
+class DataManagerCrypto:
     def __init__(self, exchange_name='binance'):
         # Crée une instance ccxt avec gestion automatique du rate limit
         self.exchange = getattr(ccxt, exchange_name)({'enableRateLimit': True})
@@ -72,7 +71,7 @@ class DataManager:
 
         print(f"Récupération de {symbol} depuis {start_dt} jusqu'à {now_dt}...")
         candles = self.fetch_historical_data(symbol, timeframe, start_ts, end_ts)
-
+        
         # Initialisation de la structure : liste de listes (weeks x 7 jours)
         data_structure = [
             [[None for _ in range(INTERVALS_PER_DAY)] for _ in range(7)]
@@ -118,7 +117,7 @@ class DataManager:
             Supprimer les valeurs NaN et les matrices de manière à simplifier les calculs
             """
             
-            feather = DataManager.read_from_feather(lst, folder)
+            feather = DataManagerCrypto.read_from_feather(lst, folder)
             tableau = feather.values.tolist() 
             initial_size = len(tableau)
             
@@ -136,6 +135,7 @@ class DataManager:
         list_1 = clean_list(file1, folder)
         list_2 = clean_list(file2, folder)
         
+        
         minimum_len = min(len(list_1), len(list_2))
         print(f"Echantillons de taille : {minimum_len}")
         # On ajuste les échantillons de manière à égaliser leur taille
@@ -147,7 +147,7 @@ class DataManager:
             for i in range(minimum_len):
                 list_1[i] = list_1[i] - minimum
                 list_2[i] = list_2[i] - minimum
-                
+        
         return list_1, list_2
 
 
