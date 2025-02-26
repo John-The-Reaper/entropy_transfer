@@ -27,9 +27,9 @@ pip install -r requirements.txt
 ## Utilisation
 ### Récupération des données historiques
 ```python
-from data_manager import DataManager
+from data_manager import DataManagerCrypto
 
-manager = DataManager()
+manager = DataManagerCrypto()
 data = manager.fetch_historical_data("BTC/USDT", "1h", start_ts, end_ts)
 ```
 
@@ -45,16 +45,10 @@ correlation = StatisticalAnalysis.calculate_correlation(series1, series2)
 te_results = StatisticalAnalysis.transfer_entropy(series1, series2, lags_range=100)
 ```
 
-### Visualisation des résultats avec mathplotlib
+### Visualisation des résultats avec mathplotlib et seaborn
 ```python
 import matplotlib.pyplot as plt
-
-plt.plot(lags, values, marker='o', linestyle='-')
-plt.xlabel("Lag (en nombre de periodes)")
-plt.ylabel("Transfert d'entropie")
-plt.title("Évolution du TE en fonction du lag")
-plt.grid()
-plt.show()
+import seaborn as sns
 ```
 
 ## Contributeurs
