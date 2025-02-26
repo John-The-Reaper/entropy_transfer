@@ -3,8 +3,9 @@ import pyarrow.feather as feather
 from scipy.stats import pearsonr, spearmanr, kendalltau, ttest_rel
 from tqdm import tqdm
 from pyinform.transferentropy import transfer_entropy
+import numpy as np
 
-from  data_manager import DataManager
+from  data_manager import DataManagerCrypto
 
 ###############################################################################
 # CLASSE POUR L'ANALYSE STATISTIQUE
@@ -16,7 +17,7 @@ class StatisticalAnalysis:
         """
         Calcule la corrélation de Pearson entre les deux DataFrames.
         """
-        data = DataManager.data_modify(df1, df2)
+        data = DataManagerCrypto.data_modify(df1, df2)
 
         corr, _ = pearsonr(data[0], data[1])
         return corr
@@ -26,7 +27,7 @@ class StatisticalAnalysis:
         """
         Calcule la corrélation de Spearman entre les deux DataFrames.
         """
-        data = DataManager.data_modify(df1, df2)
+        data = DataManagerCrypto.data_modify(df1, df2)
         
         corr, _ = spearmanr(data[0], data[1])
         return corr
@@ -36,7 +37,7 @@ class StatisticalAnalysis:
         """
         Calcule la corrélation de Kendall entre les deux DataFrames.
         """
-        data = DataManager.data_modify(df1, df2)
+        data = DataManagerCrypto.data_modify(df1, df2)
 
         corr, _ = kendalltau(data[0], data[1])
         return corr
@@ -47,7 +48,7 @@ class StatisticalAnalysis:
         Effectue un test t apparié sur les données aplaties.
         Retourne la statistique t et la p-value.
         """
-        data = DataManager.data_modify(df1, df2)
+        data = DataManagerCrypto.data_modify(df1, df2)
         
         t_stat, p_value = ttest_rel(data[0], data[1])
         return t_stat, p_value
@@ -69,23 +70,42 @@ class StatisticalAnalysis:
         return StatisticalAnalysis.calculate_pearson(sample_ref, sample_sec)
 
     @staticmethod
-    def transfer_entropy(serie_source, serie_cible, lags_range=100):
+    def transfer_entropy(series_source, series_target, lags_range=100):
         """
-        Calcul d'un transfer d'entropie sur deux séries de données avec un "lag" en nombre de périodes
-
-        Résultat du TE proche de 1 = serie_source influence serie_cible
+        Calcul optimisé du transfert d'entropie pour une gamme de lags.
         """
-        data = DataManager.data_modify(serie_source, serie_cible, True)
-        te_values = []
+        data = DataManagerCrypto.data_modify(series_source, series_target, entropy=True)
 
+        source = np.array(data[0])
+        target = np.array(data[1])
+
+        # Vérification des tailles minimales requises
+        min_length = min(len(source), len(target))
+        if min_length < lags_range:
+            print("La longueur des séries est inférieure au lags_range.")
+            lags_range = min_length
+
+        te_values = np.zeros(lags_range)
 
         for lag in range(lags_range):
-            min_length = min(len(data[0]) - lag, len(data[1]) - lag)
-            source = data[0][:min_length]
-            target = data[1][lag:lag + min_length]
+            truncated_source = source[: min_length - lag]
+            truncated_target = target[lag : min_length]
 
-            te_value = transfer_entropy(source, target, k=1)  # k = ordre du passé pris en compte
-            te_values.append((lag, te_value))
-        return te_values
+            try:
+                te_values[lag] = transfer_entropy(truncated_source, truncated_target, k=1)
+            except Exception as e:
+                print(f"Erreur de calcul TE pour le lag {lag}: {e}")
+                te_values[lag] = np.nan  # Marquer les erreurs
 
-
+        return list(enumerate(te_values))
+    
+    @staticmethod
+    def moving_average(values, window_size):
+        """Calcule une moyenne mobile qui s'étend jusqu'à la dernière valeur."""
+        moving_avg = np.convolve(values, np.ones(window_size) / window_size, mode='valid')
+        
+        # Remplissage des premières valeurs pour garder la même taille
+        start_vals = [np.mean(values[:i+1]) for i in range(window_size - 1)]
+        full_moving_avg = np.concatenate([start_vals, moving_avg])
+    
+        return full_moving_avg
