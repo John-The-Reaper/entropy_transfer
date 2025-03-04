@@ -100,6 +100,27 @@ class StatisticalAnalysis:
         return list(enumerate(te_values))
     
     @staticmethod
+    def compute_te_over_time(series_source, series_target, window_size=100):
+        """
+        Calcule l'évolution du transfert d'entropie sur une fenêtre glissante.
+        """
+        data = DataManagerCrypto.data_modify(series_source, series_target, entropy=True)
+        source = np.array(data[0])
+        target = np.array(data[1])
+
+        min_length = min(len(source), len(target))
+        if min_length < window_size:
+            raise ValueError("La taille des séries est inférieure à la fenêtre d'analyse.")
+
+        te_values = [
+            transfer_entropy(source[i:i+window_size], target[i:i+window_size], k=1)
+            for i in range(min_length - window_size)
+        ]
+
+        return te_values
+
+    
+    @staticmethod
     def moving_average(values, window_size):
         """Calcule une moyenne mobile qui s'étend jusqu'à la dernière valeur."""
         moving_avg = np.convolve(values, np.ones(window_size) / window_size, mode='valid')
@@ -109,3 +130,4 @@ class StatisticalAnalysis:
         full_moving_avg = np.concatenate([start_vals, moving_avg])
     
         return full_moving_avg
+        
