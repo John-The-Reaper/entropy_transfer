@@ -1,0 +1,13 @@
+data/
+env_tools/
+cointegration_results_1d/
+cointegration_results_1h/
+cointegration_results_15m/
+cointegration_results_1m/
+cointegration_results_1w/
+cointegration_results_1M/
+cointegration_results_1y/
+cointegration_results_1d/
+cointegration_results_1h/
+cointegration_results_15m/
+__pycache__/
