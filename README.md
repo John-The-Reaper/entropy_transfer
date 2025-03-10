@@ -1,16 +1,3 @@
-<think>Je dois créer un nouveau README.md pour le projet qui met l'accent sur les fonctionnalités statistiques et leur évolution future. En me basant sur les informations disponibles sur le projet "entropy_transfer" et les modifications récentes, je vais structurer un README complet.
-
-Voici ce que je dois inclure :
-1. Un titre et une description générale
-2. Les fonctionnalités principales (en mettant l'accent sur les tests statistiques)
-3. La structure du projet et l'organisation du code
-4. Les instructions d'installation
-5. Des exemples d'utilisation
-6. Une section sur les développements futurs
-7. Les informations sur les contributeurs
-
-Je vais rédiger ce README en français, puisque le projet original était en français.</think># Analyse de Corrélation & Transfert d'Entropie pour Cryptomonnaies
-
 ## Description
 
 Ce projet fournit une boîte à outils puissante pour l'analyse statistique des marchés financiers, en particulier des cryptomonnaies. Il permet d'étudier les relations entre différents actifs à travers une variété de méthodes statistiques avancées.
